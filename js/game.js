@@ -4,7 +4,7 @@ canvas.height = innerHeight;
 const ctx = canvas.getContext("2d");
 
 const screenCenter = {x: canvas.width/2, y: canvas.height/2};
-const gameObjects = [];
+// const gameObjects = [];
 const projectiles = [];
 const enemies = [];
 
@@ -107,6 +107,33 @@ class Enemy{
         this.position.y += this.speed.y;
         this.draw()
     }
+
+    hasCollisionWith(obj) {
+        // needs refactoring
+        if (this.position.x + this.radius > obj.position.x - obj.radius && this.speed.x > 0){
+            if (this.position.y > obj.position.y - obj.radius && this.position.y < obj.position.y){
+                return true;
+            }
+
+            if (this.position.y < obj.position.y + obj.radius && this.position.y > obj.position.y){
+                return true;
+            }
+        }
+
+        if (this.position.x - this.radius < obj.position.x + obj.radius && this.speed.x < 0) {
+            if (this.position.y + this.radius > obj.position.y - obj.radius &&
+                this.position.y + this.radius < obj.position.y){
+                return true;
+            }
+
+            if (this.position.y - this.radius < obj.position.y + obj.radius &&
+                this.position.y - this.radius > obj.position.y){
+                return true;
+            }            
+        }
+
+        return false;
+    }
 }
 
 class InputHandler{
@@ -120,7 +147,7 @@ class InputHandler{
 
 const player = new Player(screenCenter.x, screenCenter.y, '#FF0000', 20, ctx);
 const inputHandler = new InputHandler(player);
-gameObjects.push(player);
+// gameObjects.push(player);
 
 function spawnEnemies() {
     setInterval(() =>{
@@ -145,18 +172,22 @@ function spawnEnemies() {
 function animate(){
     requestAnimationFrame(animate);
     ctx.clearRect(0,0,canvas.width, canvas.height);
-    gameObjects.forEach(obj => obj.update());
+    // gameObjects.forEach(obj => obj.update());
+    player.update()
     projectiles.forEach((projectile, index) =>{
         if (projectile.isOnScreen()){
-            console.log('is on screen');
             projectile.update()
         }else{
             projectiles.splice(index, 1);
-            console.log('is not on screen')
         }
     })
 
-    enemies.forEach(enemy => enemy.update());
+    enemies.forEach((enemy, index) => {
+        enemy.update();
+        if (enemy.hasCollisionWith(player)){
+            enemies.splice(index, 1);
+        }
+    });
 }
 
 animate();
