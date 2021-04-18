@@ -1,0 +1,11 @@
+canvas{
+    border: 1px solid black;
+    background-color: aliceblue;
+}
+
+body{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: brown;
+}
