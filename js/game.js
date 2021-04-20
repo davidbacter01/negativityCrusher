@@ -110,26 +110,10 @@ class Enemy{
 
     hasCollisionWith(obj) {
         // needs refactoring
-        if (this.position.x + this.radius > obj.position.x - obj.radius && this.speed.x > 0){
-            if (this.position.y > obj.position.y - obj.radius && this.position.y < obj.position.y){
-                return true;
-            }
-
-            if (this.position.y < obj.position.y + obj.radius && this.position.y > obj.position.y){
-                return true;
-            }
-        }
-
-        if (this.position.x - this.radius < obj.position.x + obj.radius && this.speed.x < 0) {
-            if (this.position.y + this.radius > obj.position.y - obj.radius &&
-                this.position.y + this.radius < obj.position.y){
-                return true;
-            }
-
-            if (this.position.y - this.radius < obj.position.y + obj.radius &&
-                this.position.y - this.radius > obj.position.y){
-                return true;
-            }            
+        let distanceBetweenObjects = Math.pow(obj.position.y - this.position.y, 2) + 
+         Math.pow(obj.position.x - this.position.x, 2);
+        if (Math.sqrt(distanceBetweenObjects) <= this.radius + obj.radius){
+            return true;
         }
 
         return false;
@@ -172,7 +156,6 @@ function spawnEnemies() {
 function animate(){
     requestAnimationFrame(animate);
     ctx.clearRect(0,0,canvas.width, canvas.height);
-    // gameObjects.forEach(obj => obj.update());
     player.update()
     projectiles.forEach((projectile, index) =>{
         if (projectile.isOnScreen()){
@@ -183,10 +166,15 @@ function animate(){
     })
 
     enemies.forEach((enemy, index) => {
+        projectiles.forEach((projectile, index2) => {
+            if (enemy.hasCollisionWith(projectile)){
+                enemy.update();
+                enemies.splice(index, 1);
+                projectiles.splice(index2, 1)
+            }
+        })
+        
         enemy.update();
-        if (enemy.hasCollisionWith(player)){
-            enemies.splice(index, 1);
-        }
     });
 }
 
